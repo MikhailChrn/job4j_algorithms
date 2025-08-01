@@ -3,16 +3,31 @@ package ru.job4j.algorithms.twopointer;
 import java.util.Arrays;
 
 public class SmallestRangeFinder {
-    /** Добавьте поля класса здесь, если это необходимо */
+    /**
+     * У вас есть отсортированный массив целых чисел и число k.
+     * Ваша задача - найти наименьший диапазон в массиве,
+     * который содержит как минимум k различных элементов.
+     */
 
     public static int[] findSmallestRange(int[] nums, int k) {
-        /** Добавьте реализацию метода здесь
-         Метод должен принимать массив nums и целочисленное значение k,
-         и возвращать массив из двух целых чисел, представляющих наименьший диапазон
-         с k различными элементами в массиве nums
-         Если такой диапазон найти невозможно, вернуть null
-         **/
-        return null; /** замените это на вашу реализацию */
+        if (nums.length < k
+                || nums[nums.length - 1] - nums[0] + 1 < k) {
+
+            return null;
+        }
+
+        int right;
+
+        for (int range = k; range < nums.length; range++) {
+            for (right = range - 1; right < nums.length; right++) {
+                if (nums[right] - nums[right - range + 1] >= k) {
+                    return new int[]{right - range + 1, right};
+                }
+            }
+        }
+
+        return new int[]{nums.length - 1, 0};
+
     }
 
     public static void main(String[] args) {
