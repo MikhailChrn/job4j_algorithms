@@ -29,17 +29,17 @@ public class TwoSum {
 
     public static void main(String[] args) {
         System.out.println("case #1");
-        int[] nums = new int[] {2,7,11,15};
+        int[] nums = new int[] {2, 7, 11, 15};
         int target = 9;
         Arrays.stream(twoSum(nums, target)).forEach(System.out::println);
 
         System.out.println("case #2");
-        nums = new int[] {3,2,4};
+        nums = new int[] {3, 2, 4};
         target = 6;
         Arrays.stream(twoSum(nums, target)).forEach(System.out::println);
 
         System.out.println("case #3");
-        nums = new int[] {3,3};
+        nums = new int[] {3, 3};
         target = 6;
         Arrays.stream(twoSum(nums, target)).forEach(System.out::println);
     }
