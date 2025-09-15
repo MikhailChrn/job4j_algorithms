@@ -17,17 +17,19 @@ class QuickListTest {
         User user4 = new User(-4, "44");
         User user5 = new User(4, "55");
         User user6 = new User(6, "66");
+        User user7 = new User(7, "77");
         Comparator<User> comparator = Comparator.comparingInt(User::getId);
         List<User> listUser = new ArrayList<>();
         listUser.add(user3);
         listUser.add(user5);
         listUser.add(user1);
+        listUser.add(user7);
         listUser.add(user4);
         listUser.add(user6);
         listUser.add(user2);
         QuickList.quickSort(listUser, comparator);
         List<Integer> result = listUser.stream().map(User::getId).toList();
-        assertThat(result).containsExactly(-4, 1, 1, 3, 4, 6);
+        assertThat(result).containsExactly(-4, 1, 1, 3, 4, 6, 7);
     }
 
     @Test
