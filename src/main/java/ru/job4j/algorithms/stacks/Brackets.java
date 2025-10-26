@@ -2,6 +2,7 @@ package ru.job4j.algorithms.stacks;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Map;
 
 /**
  * Необходимо проверить строку.
@@ -10,23 +11,27 @@ import java.util.Deque;
  */
 
 class Brackets {
+    private static final Map<Character, Character> BRACKETS_PAIRS = Map.of(
+            ')', '(',
+            ']', '[',
+            '}', '{'
+    );
+
     public boolean isValid(String s) {
         Deque<Character> stack = new ArrayDeque<>();
         char top;
 
         for (char ch : s.toCharArray()) {
-            if (ch == '(' || ch == '[' || ch == '{') {
+            if (BRACKETS_PAIRS.containsValue(ch)) {
                 stack.push(ch);
                 continue;
             }
-            if (ch == ')' || ch == ']' || ch == '}') {
+            if (BRACKETS_PAIRS.containsKey(ch)) {
                 if (stack.isEmpty()) {
                     return false;
                 }
                 top = stack.pop();
-                if ((ch == ')' && top != '(')
-                        || (ch == '}' && top != '{')
-                        || (ch == ']' && top != '[')) {
+                if (BRACKETS_PAIRS.get(ch) != top) {
                     return false;
                 }
             }
