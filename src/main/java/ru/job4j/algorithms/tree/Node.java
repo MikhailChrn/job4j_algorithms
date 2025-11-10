@@ -23,6 +23,10 @@ public class Node<E> {
         return String.format("Node{ %s }", value);
     }
 
+    public void clear() {
+        children = new ArrayList<>();
+    }
+
     public E getValue() {
         return value;
     }
