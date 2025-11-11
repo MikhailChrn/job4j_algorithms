@@ -141,7 +141,7 @@ public class TreeUtils<T> {
 
     public void removeFromParent(Node<T> root, Node<T> targetNode) {
         if (root == targetNode) {
-            root.clear();
+            return;
         }
 
         SimpleStack<Node<T>> job4jSimpleStack = new SimpleStack<>();

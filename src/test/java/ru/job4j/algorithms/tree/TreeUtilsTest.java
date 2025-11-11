@@ -91,13 +91,10 @@ class TreeUtilsTest {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
-    /**
-     * Исправлена последняя строчка, '.isEqualTo(31)' -> '.isEqualTo(1)'
-     */
     @Test
     void checkDivideRoot() {
         Optional<Node<Integer>> result = treeUtils.divideByKey(tree, 1);
         assertThat(result).isPresent();
-        assertThat(treeUtils.countNode(result.get())).isEqualTo(1);
+        assertThat(treeUtils.countNode(result.get())).isEqualTo(31);
     }
 }
