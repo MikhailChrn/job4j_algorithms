@@ -16,27 +16,26 @@ public class BinarySearchTree<T extends Comparable<T>> {
     }
 
     private boolean put(Node node, T key) {
-        int matchRes = key.compareTo(node.key);
+        int compareResult = key.compareTo(node.key);
 
-        if (matchRes == 0) {
-            return true;
+        if (compareResult == 0) {
+            return false;
 
-        } else if (matchRes < 0) {
+        } else if (compareResult < 0) {
             if (node.left == null) {
                 node.left = new Node(key);
                 return true;
+            } else {
+                return put(node.left, key);
             }
-            put(node.left, key);
-
         } else {
             if (node.right == null) {
                 node.right = new Node(key);
                 return true;
+            } else {
+                return put(node.right, key);
             }
-            put(node.right, key);
         }
-
-        return false;
     }
 
     public boolean contains(T key) {
@@ -48,13 +47,13 @@ public class BinarySearchTree<T extends Comparable<T>> {
     }
 
     private Node find(Node node, T key) {
-        int matchRes = Objects.isNull(node)
+        int compareResult = Objects.isNull(node)
                 ? 0 : key.compareTo(node.key);
 
-        if (matchRes == 0) {
+        if (compareResult == 0) {
             return node;
 
-        } else if (matchRes < 0) {
+        } else if (compareResult < 0) {
             return find(node.left, key);
         }
 
@@ -62,7 +61,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
     }
 
     /**
-     * Как видим, в конце метода remove() узел current имеет необнуленные ссылки - на потомков.
+     * Как видим, в конце метода remove() узел 'cursorNode' имеет необнуленные ссылки - на потомков.
      * Доработайте метод remove() так, чтобы избежать утечки памяти.
      * Проверьте работу всех методов дерева. Добавьте необходимые тесты.
      */
@@ -70,70 +69,102 @@ public class BinarySearchTree<T extends Comparable<T>> {
     public boolean remove(T key) {
         boolean result = false;
         if (Objects.nonNull(key) && Objects.nonNull(root)) {
-            result = remove(root, key);
+            result = removePrivat(key);
         }
         return result;
     }
 
-    private boolean remove(Node source, T key) {
+    /**
+     * Удаляет узел с заданным ключом из бинарного дерева поиска, корректно обрабатывая все возможные случаи.
+     * Случай 1: Узел - лист (нет потомков);
+     * Случай 2: Только левый потомок;
+     * Случай 3: Только правый потомок;
+     * Случай 4: Есть оба потомка.
+     *
+     * nodeToRemove - удаляемый узел
+     * parentNodeToRemove - родительский узел для 'nodeToRemove'
+     * nodeToReplace - узел заменяет 'nodeToRemove' в структуре дерева
+     */
+
+    private boolean removePrivat(T key) {
         boolean result = true;
-        Node current = source;
-        Node parent = source;
-        boolean isLeft = true;
-        while (result && !Objects.equals(current.key, key)) {
-            parent = current;
-            int cmp = key.compareTo(current.key);
-            if (cmp < 0) {
-                isLeft = true;
-                current = current.left;
-            } else if (cmp > 0) {
-                isLeft = false;
-                current = current.right;
+        Node nodeToRemove = root;
+        Node parentNodeToRemove = root;
+        boolean isLeftBranch = true;
+
+        while (result && !Objects.equals(nodeToRemove.key, key)) {
+            parentNodeToRemove = nodeToRemove;
+            int compareResult = key.compareTo(nodeToRemove.key);
+            if (compareResult < 0) {
+                isLeftBranch = true;
+                nodeToRemove = nodeToRemove.left;
+            } else if (compareResult > 0) {
+                isLeftBranch = false;
+                nodeToRemove = nodeToRemove.right;
             }
-            if (Objects.isNull(current)) {
+            if (Objects.isNull(nodeToRemove)) {
                 result = false;
             }
         }
+
         if (result) {
-            if (Objects.isNull(current.left) && Objects.isNull(current.right)) {
-                swap(isLeft, source, parent, current, null);
-            } else if (Objects.nonNull(current.left) && Objects.isNull(current.right)) {
-                swap(isLeft, source, parent, current, current.left);
-            } else if (Objects.isNull(current.left)) {
-                swap(isLeft, source, parent, current, current.right);
+            if (Objects.isNull(nodeToRemove.left) && Objects.isNull(nodeToRemove.right)) {
+                swap(isLeftBranch, parentNodeToRemove, nodeToRemove, null);
+            } else if (Objects.nonNull(nodeToRemove.left) && Objects.isNull(nodeToRemove.right)) {
+                swap(isLeftBranch, parentNodeToRemove, nodeToRemove, nodeToRemove.left);
+            } else if (Objects.isNull(nodeToRemove.left)) {
+                swap(isLeftBranch, parentNodeToRemove, nodeToRemove, nodeToRemove.right);
             } else {
-                Node heir = getHeir(current);
-                swap(isLeft, source, parent, current, heir);
-                heir.left = current.left;
+                Node nodeToReplace = getHeir(nodeToRemove);
+                swap(isLeftBranch, parentNodeToRemove, nodeToRemove, nodeToReplace);
+                nodeToReplace.left = nodeToRemove.left;
             }
+
+            nodeToRemove.left = null;
+            nodeToRemove.right = null;
         }
+
         return result;
     }
 
-    private void swap(boolean isLeft, Node source, Node parent, Node current, Node equal) {
-        if (Objects.equals(current, source)) {
-            root = equal;
+    /**
+     * Метод заменяет узел 'nodeToRemove' на узел 'nodeToReplace' в структуре дерева,
+     * правильно обновляя связи с родительским узлом.
+     */
+    private void swap(boolean isLeft,
+                      Node parentNodeToRemove,
+                      Node nodeToRemove,
+                      Node nodeToReplace) {
+        if (Objects.equals(nodeToRemove, root)) {
+            root = nodeToReplace;
         } else if (isLeft) {
-            parent.left = equal;
+            parentNodeToRemove.left = nodeToReplace;
         } else {
-            parent.right = equal;
+            parentNodeToRemove.right = nodeToReplace;
         }
     }
 
-    private Node getHeir(Node delNode) {
-        Node nodeParent = delNode;
-        Node node = delNode;
-        Node current = delNode.right;
-        while (current != null) {
-            nodeParent = node;
-            node = current;
-            current = current.left;
+    /**
+     * Находит минимальный элемент в правом поддереве удаляемого узла
+     * Этот элемент становится заменой для удаляемого узла
+     * @param nodeToRemove - удаляемый узел
+     * @return возвращаем подходящего преемника для замены удаляемого узла
+     */
+    private Node getHeir(Node nodeToRemove) {
+        Node parentNodeToReplace = nodeToRemove;
+        Node nodeToReplace = nodeToRemove;
+        Node cursor = nodeToRemove.right;
+        while (cursor != null) {
+            parentNodeToReplace = nodeToReplace;
+            nodeToReplace = cursor;
+            cursor = cursor.left;
         }
-        if (node != delNode.right) {
-            nodeParent.left = node.right;
-            node.right = delNode.right;
+        if (nodeToReplace != nodeToRemove.right) {
+            parentNodeToReplace.left = nodeToReplace.right;
+            nodeToReplace.right = nodeToRemove.right;
         }
-        return node;
+
+        return nodeToReplace;
     }
 
     public List<T> inSymmetricalOrder() {
