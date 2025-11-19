@@ -6,6 +6,42 @@ public class BinarySearchTree<T extends Comparable<T>> {
 
     private Node root;
 
+    public void clear() {
+        Node node = root;
+        clearPostOrderIterative(node);
+    }
+
+    private void clearPostOrderIterative(Node first) {
+        if (root == null) {
+            return;
+        }
+
+        Deque<Node> stack = new ArrayDeque<>();
+        Node current = first;
+        Node lastVisited = null;
+
+        while (current != null || !stack.isEmpty()) {
+            while (current != null) {
+                stack.push(current);
+                current = current.left;
+            }
+
+            Node peekNode = stack.peek();
+
+            if (peekNode.right != null && lastVisited != peekNode.right) {
+                current = peekNode.right;
+            } else {
+                peekNode.left = null;
+                peekNode.right = null;
+                lastVisited = stack.pop();
+            }
+        }
+
+        root.left = null;
+        root.right = null;
+        root = null;
+    }
+
     public boolean put(T key) {
         if (Objects.isNull(root)) {
             root = new Node(key);
